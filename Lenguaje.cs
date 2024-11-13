@@ -2,6 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+/*
+    REQUERIMIENTOS
+    1) Indicar en el error léxico o sintáctico el número de línea y caracter
+    2) En el log colocar el nombre del archivo a compilar, la fecha y la hora, ejemplo:
+
+    3) Agregar el resto de asignaciones:
+        ID = Expresion
+        ID++
+        ID--
+        ID IncrementoTermino Expresion
+        ID IncrementoFactor Expresion
+        ID = Console.Read()
+        ID = Console.ReadLine()
+    4) Emular el Console.Write() y Console.WriteLine()
+    5) Emular el Console.Read() y Console.ReadLine()
+*/
 
 namespace Sintaxis_1
 {
@@ -16,7 +32,7 @@ namespace Sintaxis_1
         {
             log.WriteLine("Constructor lenguaje");
         }
-
+        // ? Cerradura epsilon
         //Programa  -> Librerias? Variables? Main
         public void Programa()
         {
@@ -29,7 +45,8 @@ namespace Sintaxis_1
             {
                 Variables();
             }
-            main();
+
+            Main();
         }
 
         //Librerias -> using ListaLibrerias; Librerias?
@@ -51,6 +68,7 @@ namespace Sintaxis_1
             match(Tipos.TipoDato);
             ListaIdentificadores();
             match(";");
+
             if (getClasificacion() == Tipos.TipoDato)
             {
                 Variables();
@@ -61,6 +79,7 @@ namespace Sintaxis_1
         private void ListaLibrerias()
         {
             match(Tipos.Identificador);
+
             if (getContenido() == ".")
             {
                 match(".");
@@ -68,25 +87,31 @@ namespace Sintaxis_1
             }
         }
 
-        //ListaIdentificadores -> identificador (,ListaIdentificadores)?
+        // ListaIdentificadores -> identificador (,ListaIdentificadores)?
         private void ListaIdentificadores()
         {
             match(Tipos.Identificador);
-            if (getContenido() == ".")
+
+            if (getContenido() == ",")
             {
-                match(".");
+                match(",");
                 ListaIdentificadores();
             }
         }
-
-        //BloqueInstrucciones -> { listaIntrucciones? }
+        // BloqueInstrucciones -> { listaIntrucciones? }
         private void BloqueInstrucciones()
         {
-            ListaInstrucciones();
             match("{");
+            if (getContenido() != "}")
+            {
+                ListaInstrucciones();
+            }
+            else
+            {
+                match("}");
+            }
         }
-
-        //ListaInstrucciones -> Instruccion ListaInstrucciones?
+        // ListaInstrucciones -> Instruccion ListaInstrucciones?
         private void ListaInstrucciones()
         {
             Instruccion();
@@ -94,10 +119,13 @@ namespace Sintaxis_1
             {
                 ListaInstrucciones();
             }
+            else
+            {
+                match("}");
+            }
         }
 
-
-        //Instruccion -> Console | If | While | do | For | Variables | Asignación
+        // Instruccion -> console | If | While | do | For | Variables | Asignación
         private void Instruccion()
         {
             if (getContenido() == "Console")
@@ -120,101 +148,105 @@ namespace Sintaxis_1
             {
                 For();
             }
-
+            else if (getClasificacion() == Tipos.TipoDato)
+            {
+                Variables();
+            }
+            else
+            {
+                Asignacion();
+                match(";");
+            }
         }
-
-        //Asignacion -> Identificador = Expresion;
+        // Asignacion -> Identificador = Expresion | ID ++ | ID -- 
+        // | ID Indremento Expresion | 
         private void Asignacion()
         {
             match(Tipos.Identificador);
             match("=");
             Expresion();
-            match(";");
+            
         }
-
-        //If -> if (Condicion) bloqueInstrucciones | instruccion
-        //(else bloqueInstrucciones | instruccion)?
+        // If -> if (Condicion) bloqueInstrucciones | instruccion
+        // (else bloqueInstrucciones | instruccion)?
         private void If()
         {
             match("if");
             match("(");
             Condicion();
             match(")");
+
             if (getContenido() == "{")
             {
-                match("{");
                 BloqueInstrucciones();
-                match("}");
-                if (getContenido() == "else")
-                {
-                    match("else");
-                    match("{");
-                    BloqueInstrucciones();
-                    match("}");
-
-                }
             }
             else
             {
                 Instruccion();
             }
 
-        }
+            if (getContenido() == "else")
+            {
+                match("else");
 
-        //Condicion -> Expresion operadorRelacional Expresion
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones();
+                }
+                else
+                {
+                    Instruccion();
+                }
+            }
+        }
+        // Condicion -> Expresion operadorRelacional Expresion
         private void Condicion()
         {
             Expresion();
             match(Tipos.OperadorRelacional);
             Expresion();
         }
-
-        //While -> while(Condicion) bloqueInstrucciones | instruccion
+        // While -> while(Condicion) bloqueInstrucciones | instruccion
         private void While()
         {
             match("while");
             match("(");
             Condicion();
             match(")");
+
             if (getContenido() == "{")
             {
-                match("{");
                 BloqueInstrucciones();
-                match("}");
             }
             else
             {
                 Instruccion();
             }
         }
-        //Do -> do 
-        //bloqueInstrucciones | instruccion 
-        //while(Condicion);
+        // Do -> do 
+        // bloqueInstrucciones | intruccion 
+        // while(Condicion);
         private void Do()
         {
             match("do");
+
             if (getContenido() == "{")
             {
-                match("{");
                 BloqueInstrucciones();
-                match("}");
-                match("while");
-                match("(");
-                Condicion();
-                match(")");
-                match(";");
             }
             else
             {
                 Instruccion();
-                match("while");
-                match("(");
-                Condicion();
-                match(")");
-                match(";");
             }
+
+            match("while");
+            match("(");
+            Condicion();
+            match(")");
+            match(";");
         }
-        //For -> for(Asignacion; Condicion; Asignacion)
+        // For -> for(Asignacion; Condicion; Asignación) 
+        // BloqueInstrucciones | Intruccion
         private void For()
         {
             match("for");
@@ -225,68 +257,84 @@ namespace Sintaxis_1
             match(";");
             Asignacion();
             match(")");
+
+            if (getContenido() == "{")
+            {
+                BloqueInstrucciones();
+            }
+            else
+            {
+                Instruccion();
+            }
         }
-        
-        //Console -> Console.(WriteLine|Write) (cadena concatenaciones?);
+        // Console -> Console.(WriteLine|Write) (cadena concatenaciones?);
         private void console()
         {
             match("Console");
             match(".");
-            if(getContenido() == "WriteLine")
+
+            if (getContenido() == "WriteLine")
             {
                 match("WriteLine");
-                match("(");
-                CadenaConcatenacion();
-                match(")");
-                match(";");
-            }
-            else if(getContenido() == "Write")
-            {
-                match("Write");
-                match("(");
-                CadenaConcatenacion();
-                match(")");
-                match(";");
-            }
-        }
-        //CadenaConcatenacion -> cadena 
-        private void CadenaConcatenacion()
-        {
-            match("\"");
-            if(getContenido() != "\"")
-            {
-                CadenaConcatenacion();
             }
             else
             {
-            match("\"");
+                match("Write");
             }
-        }
 
-        //Main      -> static void Main(string[] args) BloqueInstrucciones 
-        private void main()
-        {
-            if (getContenido() == "static")
+            match("(");
+            Console.WriteLine(getContenido().Trim('\"'));
+            match(Tipos.Cadena);
+
+            if (getContenido() == "+")
             {
-                match("static");
-                match("void");
-                match("Main");
-                match("(");
-                match("string");
-                match("[");
-                match("]");
-                match("args");
-                BloqueInstrucciones();
+                Concatenacion();
             }
+
+            match(")");
+            match(";");
         }
 
-        //Expresion -> Termino MasTermino
+        //Concatenaciones -> + cadena
+        private void Concatenacion()
+        {
+            match("+");
+
+            if (getClasificacion() == Tipos.Cadena)
+            {
+                match(Tipos.Cadena);
+            }
+            else
+            {
+                match(Tipos.Identificador);
+            }
+
+            if (getContenido() == "+")
+            {
+                Concatenacion();
+            }
+        }
+        // Main -> static void Main(string[] args) BloqueInstrucciones 
+        private void Main()
+        {
+            match("static");
+            match("void");
+            match("Main");
+            match("(");
+            match("string");
+            match("[");
+            match("]");
+            match("args");
+            match(")");
+            BloqueInstrucciones();
+        }
+        // Expresion -> Termino MasTermino
         private void Expresion()
         {
             Termino();
             MasTermino();
         }
-        //MasTermino -> (OperadorTermino Termino)?
+        // MasTermino -> (OperadorTermino Termino)?
         private void MasTermino()
         {
             if (getClasificacion() == Tipos.OperadorTermino)
@@ -295,14 +343,13 @@ namespace Sintaxis_1
                 Termino();
             }
         }
-        //T
-        //Termino -> Factor PorFactor
+        // Termino -> Factor PorFactor
         private void Termino()
         {
             Factor();
             PorFactor();
         }
-        //PorFactor -> (OperadorFactor Factor)?
+        // PorFactor -> (OperadorFactor Factor)?
         private void PorFactor()
         {
             if (getClasificacion() == Tipos.OperadorFactor)
@@ -311,7 +358,7 @@ namespace Sintaxis_1
                 Factor();
             }
         }
-        //Factor -> numero | identificador | (Expresion)
+        // Factor -> numero | identificador | (Expresion)
         private void Factor()
         {
             if (getClasificacion() == Tipos.Numero)
@@ -328,7 +375,6 @@ namespace Sintaxis_1
                 Expresion();
                 match(")");
             }
-        }
-
-    }
+        }
+    }
 }

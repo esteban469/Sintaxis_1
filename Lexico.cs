@@ -16,7 +16,8 @@ namespace Sintaxis_1
         public StreamReader archivo;
         public StreamWriter log;
         public StreamWriter asm;
-        public int linea = 1;
+        public int linea = 0;
+        public int columna = 0;
         const int F = -1;
 
         const int E = -2;
@@ -79,6 +80,8 @@ namespace Sintaxis_1
                 throw new Error("El archivo prueba.cpp no existe", log);
             }
         }
+
+        
 
 
         public Lexico(string nombreArchivo)
@@ -272,6 +275,11 @@ namespace Sintaxis_1
                     if (c == '\n')
                     {
                         linea++;
+                        columna = 0;
+                    }
+                    if (c != '\n')
+                    {
+                        columna++;
                     }
                     if (estado > 0)
                     {
@@ -313,6 +321,13 @@ namespace Sintaxis_1
                         case "int":
                         case "float":
                         setClasificacion(Tipos.TipoDato);
+                        break;
+                        case "if":
+                        case "else":
+                        case "while":
+                        case "do":
+                        case "for":
+                        setClasificacion(Tipos.PalabraReservada);
                         break;
                     }
                 }
