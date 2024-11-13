@@ -163,8 +163,24 @@ namespace Sintaxis_1
         private void Asignacion()
         {
             match(Tipos.Identificador);
+            if (getContenido() == "="){
             match("=");
             Expresion();
+            }
+            if(getContenido() == "+")
+            {
+                match("+");
+                match("+");
+                match(Tipos.IncrementoTermino);
+                match(";");
+            }
+            if(getContenido() == "-")
+            {
+                match("-");
+                match("-");
+                match(Tipos.IncrementoTermino);
+                match(";");
+            }
             
         }
         // If -> if (Condicion) bloqueInstrucciones | instruccion
@@ -376,5 +392,8 @@ namespace Sintaxis_1
                 match(")");
             }
         }
+        
+
+
     }
 }
