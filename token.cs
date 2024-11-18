@@ -20,7 +20,7 @@ namespace Sintaxis_1
         public Token()
         {
             contenido = "";
-            clasificacion = Tipos.Identificador;
+            clasificacion = Tipos.Caracter;
         }
         public void setContenido(string contenido)
         {
@@ -32,11 +32,11 @@ namespace Sintaxis_1
         }
         public string getContenido()
         {
-            return this.contenido;
+            return contenido;
         }
         public Tipos getClasificacion()
         {
-            return this.clasificacion;
+            return clasificacion;
         }
     }
 }

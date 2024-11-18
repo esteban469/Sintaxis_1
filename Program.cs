@@ -20,7 +20,7 @@ namespace Sintaxis_1
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine(e.Message);
             }
 
         }

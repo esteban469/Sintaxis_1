@@ -4,15 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 /*
     REQUERIMIENTOS
-    1) Indicar en el error léxico o sintáctico el número de línea y caracter
+    1) Indicar en el error léxico o sintáctico el número de línea y columna
     2) En el log colocar el nombre del archivo a compilar, la fecha y la hora, ejemplo:
 
     3) Agregar el resto de asignaciones:
         ID = Expresion
         ID++
         ID--
-        ID IncrementoTermino Expresion
-        ID IncrementoFactor Expresion
+        ID IncrementoTermino Expresion --> a += b+1 || a -= 1
+        ID IncrementoFactor Expresion --> a *= b+1 || a %= 1
         ID = Console.Read()
         ID = Console.ReadLine()
     4) Emular el Console.Write() y Console.WriteLine()
@@ -125,6 +125,7 @@ namespace Sintaxis_1
             }
         }
 
+
         // Instruccion -> console | If | While | do | For | Variables | Asignación
         private void Instruccion()
         {
@@ -155,34 +156,79 @@ namespace Sintaxis_1
             else
             {
                 Asignacion();
-                match(";");
+
             }
         }
-        // Asignacion -> Identificador = Expresion | ID ++ | ID -- 
-        // | ID Indremento Expresion | 
+        /*3) Agregar el resto de asignaciones:
+         ID = Expresion
+         ID++
+         ID--
+         ID IncrementoTermino Expresion --> a += b+1 || a -= 1
+         ID IncrementoFactor Expresion --> a *= b+1 || a %= 1
+         ID = Console.Read()
+         ID = Console.ReadLine()*/
         private void Asignacion()
         {
             match(Tipos.Identificador);
-            if (getContenido() == "="){
-            match("=");
-            Expresion();
-            }
-            if(getContenido() == "+")
+
+            if (getContenido() == "=")
             {
-                match("+");
-                match("+");
-                match(Tipos.IncrementoTermino);
-                match(";");
+                match("=");
+                if (getContenido() == "Console")
+                {
+                    match("Console");
+                    match(".");
+                    if (getContenido() == "Read")
+                    {
+                        match("Read");
+                        match("(");
+                        Console.Read();
+                        match(")");
+                        match(";");
+                    }
+                    else if (getContenido() == "ReadLine")
+                    {
+                        match("ReadLine");
+                        match("(");
+                        Console.ReadLine();
+                        match(")");
+                        match(";");
+                    }
+                }
+                else
+                {
+                    Expresion();
+                    match(";");
+                }
             }
-            if(getContenido() == "-")
+            else if (getContenido() == "++" || getContenido() == "--")
             {
-                match("-");
-                match("-");
                 match(Tipos.IncrementoTermino);
-                match(";");
+                if (getContenido() != ")")
+                {
+                    match(";");
+                }
             }
-            
+            else if(getContenido() == "+=" || getContenido() == "-=")
+            {
+                match(Tipos.IncrementoTermino);
+                Expresion();
+                if (getContenido() != ")")
+                {
+                    match(";");
+                }
+            }
+            else if (getContenido() == "*=" || getContenido() == "%=")
+            {
+                match(Tipos.IncrementoFactor);
+                Expresion();
+                if (getContenido() != ")")
+                {
+                    match(";");
+                }
+            }
         }
+
         // If -> if (Condicion) bloqueInstrucciones | instruccion
         // (else bloqueInstrucciones | instruccion)?
         private void If()
@@ -268,7 +314,7 @@ namespace Sintaxis_1
             match("for");
             match("(");
             Asignacion();
-            match(";");
+            //match(";");
             Condicion();
             match(";");
             Asignacion();
@@ -288,51 +334,34 @@ namespace Sintaxis_1
         {
             match("Console");
             match(".");
-
             if (getContenido() == "WriteLine")
             {
                 match("WriteLine");
+                match("(");
+                Console.WriteLine(getContenido().Trim('\"').Trim(')'));
+                if (getClasificacion() == Tipos.Cadena)
+                {
+                    match(Tipos.Cadena);
+                }
             }
-            else
+            else if (getContenido() == "Write")
             {
                 match("Write");
+                match("(");
+                Console.WriteLine(getContenido().Trim('\"').Trim(')'));
+                if (getClasificacion() == Tipos.Cadena)
+                {
+                    match(Tipos.Cadena);
+                }
             }
-
-            match("(");
-            Console.WriteLine(getContenido().Trim('\"'));
-            match(Tipos.Cadena);
-
-            if (getContenido() == "+")
-            {
-                Concatenacion();
-            }
-
             match(")");
             match(";");
         }
 
-        //Concatenaciones -> + cadena
-        private void Concatenacion()
-        {
-            match("+");
-
-            if (getClasificacion() == Tipos.Cadena)
-            {
-                match(Tipos.Cadena);
-            }
-            else
-            {
-                match(Tipos.Identificador);
-            }
-
-            if (getContenido() == "+")
-            {
-                Concatenacion();
-            }
-        }
         // Main -> static void Main(string[] args) BloqueInstrucciones 
         private void Main()
         {
+
             match("static");
             match("void");
             match("Main");
@@ -343,6 +372,7 @@ namespace Sintaxis_1
             match("args");
             match(")");
             BloqueInstrucciones();
+
         }
         // Expresion -> Termino MasTermino
         private void Expresion()
@@ -391,9 +421,6 @@ namespace Sintaxis_1
                 Expresion();
                 match(")");
             }
-        }
-        
-
-
-    }
+        }
+    }
 }
