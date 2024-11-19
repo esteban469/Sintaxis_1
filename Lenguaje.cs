@@ -186,7 +186,7 @@ namespace Sintaxis_1
                         match(")");
                         match(";");
                     }
-                    else if (getContenido() == "ReadLine")
+                    else 
                     {
                         match("ReadLine");
                         match("(");

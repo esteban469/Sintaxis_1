@@ -282,11 +282,11 @@ namespace Sintaxis_1
                     if (c == '\n')
                     {
                         linea++;
-                        columna = 0;
+                        columna = 1;
                     }
-                    if (c != '\n')
+                    else
                     {
-                        columna++;
+                        columna++;    
                     }
                     if (estado > 0)
                     {
