@@ -338,7 +338,7 @@ namespace Sintaxis_1
                         break;
                     }
                 }
-                log.WriteLine(getContenido() + " --- " + getClasificacion());
+                //log.WriteLine(getContenido() + " --- " + getClasificacion());
             }
         }
 
