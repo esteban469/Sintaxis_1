@@ -24,7 +24,7 @@ namespace Sintaxis_1
             }
             else
             {
-                throw new Error("Sintaxis: Se espera \" " + contenido + " \" en: [linea " + linea + ", columna " + columna + "]");
+                throw new Error("Sintaxis: Se espera \" " + contenido + " \" en: [" + linea + "," + columna + "]");
             }
         }
 
@@ -36,7 +36,7 @@ namespace Sintaxis_1
             }
             else
             {
-                throw new Error("Sintaxis: Se espera \" " + clasificacion + " \" en: [linea " + linea + ", columna " + columna + "]");
+                throw new Error("Sintaxis: Se espera \" " + clasificacion + " \" en: [" + linea + "," + columna + "]");
             }
         }
     }
