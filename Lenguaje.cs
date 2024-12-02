@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Sintaxis_1;
 /*
     REQUERIMIENTOS
-    1.- Concatenacion (CASI)
+    1.- Concatenacion (LISTO)
     2.- Inicializar una variable desde la declaracion (LISTO)
     3.- Evaluar las expresiones matematicas (LISTO)
     4.- Levantar excepcion si en el Read no se ingresan numeros **** Hacerlo en asignacion ****(LISTO)
-    5.- Modificar la variable con el resto de operadores (incrementoFactor, incrementoTermino) **** Hacerlo en asignacion ****
+    5.- Modificar la variable con el resto de operadores (incrementoFactor, incrementoTermino) **** Hacerlo en asignacion ****(LISTO)
     6.- Implementar el else
 */
 
@@ -139,12 +139,6 @@ namespace Sintaxis_1
                 asignacionDeclaracion = true; // indica que la asignacion se esta haciendo en la declaracion
                 Asignacion();
                 asignacionDeclaracion = false;
-
-                /*Variable? v = l.LastOrDefault(); 
-                if (v != null)
-                {
-                    v.setValor(r); 
-                }*/
             }
 
             else if (getContenido() == ",")
@@ -273,36 +267,87 @@ namespace Sintaxis_1
 
             else if (getContenido() == "++" || getContenido() == "--")
             {
-                match(Tipos.IncrementoTermino);
+                //match(Tipos.IncrementoTermino);
+                if (v != null)
+                {
+                    int numero = (int)v.getValor();
+                    if (getContenido() == "++")
+                    {
+                        match(Tipos.IncrementoTermino);
+                        numero++;
+                    }
+                    else if (getContenido() == "--")
+                    {
+                        match(Tipos.IncrementoTermino);
+                        numero--;
+                    }
+                    s.Push(numero);
+                    v?.setValor(numero);
+                }
 
             }
             else if (getContenido() == "+=" || getContenido() == "-=")
             {
-                match(Tipos.IncrementoTermino);
-                Expresion();
+                //match(Tipos.IncrementoTermino);
+                //Expresion();
+                if (v != null)
+                {
+                    int numero = (int)v.getValor();
+                    if (getContenido() == "+=")
+                    {
+                        match(Tipos.IncrementoTermino);
+                        Expresion();
+                        numero += (int)s.Pop();
+                    }
+                    else if (getContenido() == "-=")
+                    {
+                        match(Tipos.IncrementoTermino);
+                        Expresion();
+                        numero -= (int)s.Pop();
+                    }
+                    s.Push(numero);
+                    v?.setValor(numero);
+                }
             }
             else if (getContenido() == "*=" || getContenido() == "%=")
             {
-                match(Tipos.IncrementoFactor);
-                Expresion();
+                //match(Tipos.IncrementoFactor);
+                //Expresion();
+                if (v != null)
+                {
+                    int numero = (int)v.getValor();
+                    if (getContenido() == "*=")
+                    {
+                        match(Tipos.IncrementoFactor);
+                        Expresion();
+                        numero *= (int)s.Pop();
+                    }
+                    else if (getContenido() == "%=")
+                    {
+                        match(Tipos.IncrementoFactor);
+                        Expresion();
+                        numero %= (int)s.Pop();
+                    }
+                    s.Push(numero);
+                    v?.setValor(numero);
+                }
             }
+
             if (getContenido() == ",")
             {
                 v = l.LastOrDefault();
                 match(",");
                 ListaIdentificadores();
             }
-            if(asignacionDeclaracion == true && getContenido() ==";")
+            if (asignacionDeclaracion == true && getContenido() == ";")
             {
                 v = l.LastOrDefault();
             }
-            
+
             r = s.Pop();
             v?.setValor(r);
             //Console.WriteLine(" = " + s.Pop());
             //displayStack();
-            //v = l.LastOrDefault();
-            //v?.setValor(r);
         }
 
         // If -> if (Condicion) bloqueInstrucciones | instruccion
@@ -404,8 +449,9 @@ namespace Sintaxis_1
         {
             match("for");
             match("(");
+            asignacionDeclaracion=false;
             Asignacion();
-            //match(";");
+            match(";");
             Condicion();
             match(";");
             Asignacion();
